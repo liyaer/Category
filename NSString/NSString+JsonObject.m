@@ -10,6 +10,7 @@
 
 @implementation NSString (JsonObject)
 
+//Json序列化
 +(NSString *)jsonStringWithObject:(id)object
 {
     NSString *jsonString = nil;
@@ -32,5 +33,46 @@
     }
     return jsonString;
 }
+
+//Json反序列化
++(NSArray *)arrayWithJsonString:(NSString *)JSONString
+{
+    NSArray *responseJSON = nil;
+    if (JSONString)
+    {
+        NSError *error;
+        NSData *JSONData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+        responseJSON = [NSJSONSerialization JSONObjectWithData:JSONData options:NSJSONReadingMutableLeaves error:&error];
+        if (!responseJSON)
+        {
+            NSLog(@"反序列化 Get an error: %@", error);
+        }
+    }
+    else
+    {
+        NSLog(@"传入的JsonString为空！");
+    }
+    return responseJSON;
+}
++(NSDictionary *)dictionaryWithJsonString:(NSString *)JSONString;
+{
+    NSDictionary *responseJSON = nil;
+    if (JSONString)
+    {
+        NSError *error;
+        NSData *JSONData = [JSONString dataUsingEncoding:NSUTF8StringEncoding];
+        responseJSON = [NSJSONSerialization JSONObjectWithData:JSONData options:NSJSONReadingMutableLeaves error:&error];
+        if (!responseJSON)
+        {
+            NSLog(@"反序列化 Get an error: %@", error);
+        }
+    }
+    else
+    {
+        NSLog(@"传入的JsonString为空！");
+    }
+    return responseJSON;
+}
+
 
 @end

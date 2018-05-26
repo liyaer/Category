@@ -22,6 +22,9 @@ static NSString *keyOfClickAction;
     if (titleImage)
     {
         titleImage(button);
+        
+        //取消点击时的高亮效果
+        button.adjustsImageWhenHighlighted = NO;
     }
     [button addTarget:button action:@selector(tapAction:) forControlEvents:UIControlEventTouchUpInside];
     
