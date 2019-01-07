@@ -46,6 +46,7 @@
 }
 
 //去除字符串“开头”和“结尾”的空格（@“ ”）和换行符（\n）。注意只是开头和结尾，中间的不管
+//1：自己手动实现
 +(NSString *)deleteSpace:(NSString *)string
 {
     //头
@@ -84,6 +85,14 @@
     return string;
 }
 
+//2：系统快捷方法
++(NSString *)removeSpaceAndNewline:(NSString *)str
+{
+    NSString *temp = [str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    NSString *text = [temp stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    return text;
+}
+
 //判断是否有中文
 +(BOOL)isChinese:(NSString *)string
 {
@@ -98,5 +107,33 @@
     return NO;
 }
 
+//将字典参数用&拼接方便进行get请求测试
++(NSString *)getParametersWithDict:(NSDictionary *)dict
+{
+    // NOTE: 排序，得出最终请求字串
+    NSArray* sortedKeyArray = [[dict allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2)
+   {
+       return [obj1 compare:obj2];
+   }];
+    
+    NSMutableArray *tmpArray = [NSMutableArray new];
+    for (NSString* key in sortedKeyArray)
+    {
+        NSString* orderItem = [self itemWithKey:key andValue:[dict objectForKey:key]];
+        if (orderItem.length > 0)
+        {
+            [tmpArray addObject:orderItem];
+        }
+    }
+    return [tmpArray componentsJoinedByString:@"&"];
+}
++(NSString*)itemWithKey:(NSString*)key andValue:(NSString*)value
+{
+    if (key.length > 0 && value.length > 0)
+    {
+        return [NSString stringWithFormat:@"%@=%@", key, value];
+    }
+    return nil;
+}
 
 @end

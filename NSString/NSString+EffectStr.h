@@ -21,10 +21,15 @@
 +(BOOL)isValidateEmail:(NSString *)email;
 
 //去除字符串“开头”和“结尾”的空格（@“ ”）和换行符（\n）。注意只是开头和结尾，中间的不管
+//1：自己手动实现
 +(NSString *)deleteSpace:(NSString *)string;
+//2：系统快捷方法
++(NSString *)removeSpaceAndNewline:(NSString *)str;
 
 //是否包含中文
 +(BOOL)isChinese:(NSString *)string;
 
+//将字典参数用&拼接方便进行get请求测试
++(NSString *)getParametersWithDict:(NSDictionary *)dict;
 
 @end
