@@ -45,31 +45,39 @@
     return [emailTest evaluateWithObject:email];
 }
 
+//判断是否有中文
++(BOOL)isChinese:(NSString *)string
+{
+    for(int i=0; i< [string length];i++)
+    {
+        int a = [string characterAtIndex:i];
+        if( a > 0x4e00 && a < 0x9fff)
+        {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 //去除字符串“开头”和“结尾”的空格（@“ ”）和换行符（\n）。注意只是开头和结尾，中间的不管
 //1：自己手动实现
 +(NSString *)deleteSpace:(NSString *)string
 {
     //头
-    for(int i =0; i < [string length]; i++)
+    for(int i = 0; i < [string length]; i++)
     {
-        if ([string hasPrefix:@" "] || [string hasPrefix:@"\n"])
-        {
+        if ([string hasPrefix:@" "] || [string hasPrefix:@"\n"]){
             string = [string substringWithRange:NSMakeRange(1, string.length -1)];
-        }
-        else
-        {
+        }else{
             break;
         }
     }
     //尾
-    for(int i =0; i < [string length]; i++)
+    for(int i = 0; i < [string length]; i++)
     {
-        if ([string hasSuffix:@" "] || [string hasSuffix:@"\n"])
-        {
+        if ([string hasSuffix:@" "] || [string hasSuffix:@"\n"]){
             string = [string substringWithRange:NSMakeRange(0, string.length -1)];
-        }
-        else
-        {
+        }else{
             break;
         }
     }
@@ -93,47 +101,49 @@
     return text;
 }
 
-//判断是否有中文
-+(BOOL)isChinese:(NSString *)string
+//生成Get请求方式的完整URL（仅对一级字典结构起作用）
++ (NSString *)generateGETAbsoluteURL:(NSString *)url params:(NSDictionary *)params
 {
-    for(int i=0; i< [string length];i++)
-    {
-        int a = [string characterAtIndex:i];
-        if( a > 0x4e00 && a < 0x9fff)
-        {
-            return YES;
-        }
-    }
-    return NO;
-}
-
-//将字典参数用&拼接方便进行get请求测试
-+(NSString *)getParametersWithDict:(NSDictionary *)dict
-{
-    // NOTE: 排序，得出最终请求字串
-    NSArray* sortedKeyArray = [[dict allKeys] sortedArrayUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2)
-   {
-       return [obj1 compare:obj2];
-   }];
+    NSString *queries = @"";
     
-    NSMutableArray *tmpArray = [NSMutableArray new];
-    for (NSString* key in sortedKeyArray)
+    //参数合法性检查
+    if ([url isKindOfClass:[NSString class]] && ([url hasPrefix:@"http://"] || [url hasPrefix:@"https://"]))
     {
-        NSString* orderItem = [self itemWithKey:key andValue:[dict objectForKey:key]];
-        if (orderItem.length > 0)
+        if ([params isKindOfClass:[NSDictionary class]] && [params count] != 0)
         {
-            [tmpArray addObject:orderItem];
+            //字典key、value拼接
+            for (NSString *key in params)
+            {
+                id value = [params objectForKey:key];
+                
+                if ([value isKindOfClass:[NSDictionary class]]) {
+                    continue;
+                } else if ([value isKindOfClass:[NSArray class]]) {
+                    continue;
+                } else if ([value isKindOfClass:[NSSet class]]) {
+                    continue;
+                } else {
+                    queries = [NSString stringWithFormat:@"%@%@=%@&",/* (queries.length == 0 ? @"&" : queries) */queries,key,value];
+                }
+            }
+            //去掉最后的&(实际测试，开头和结尾有&也不影响，但是为了标准，还是都去掉，上面局部注释是去除开头&)
+            if (queries.length > 1) {
+                queries = [queries substringToIndex:queries.length - 1];
+            }
+            
+            //和URL拼接
+            if (queries.length > 1)
+            {
+                if ([url rangeOfString:@"?"].location != NSNotFound || [url rangeOfString:@"#"].location != NSNotFound){
+                    url = [NSString stringWithFormat:@"%@%@", url, queries];
+                } else {
+                    url = [NSString stringWithFormat:@"%@?%@", url, queries];
+                }
+            }
         }
     }
-    return [tmpArray componentsJoinedByString:@"&"];
-}
-+(NSString*)itemWithKey:(NSString*)key andValue:(NSString*)value
-{
-    if (key.length > 0 && value.length > 0)
-    {
-        return [NSString stringWithFormat:@"%@=%@", key, value];
-    }
-    return nil;
+    
+    return queries.length == 0 ? queries : url;
 }
 
 @end
